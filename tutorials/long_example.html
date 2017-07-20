@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="jspsych.js"></script>
+		<script src="plugins/jspsych-html-keyboard-response.js"></script>
+		<script src="plugins/jspsych-image-keyboard-response.js"></script>
+		<link rel="stylesheet" href="jspsych.css"></link>
+	</head>
+	<body>
+	</body>
+	<script>
+
+	var display = [1,5,15,30];
+
+	var distractors = ['<span style="color:#8A4117">T</span>','<span style="color:#29E726">X</span>'];
+
+	var disconj = ['<span style="color:blue">T</span>','<span style="color:blue">X</span>','<span style="color:#29E726">S</span>', '<span style="color:#8A4117">S</span>'];
+
+	function generate_position(target, order, size) {
+		let area = [[8.33,10],[25,10],[41.67,10],[58.34,10],[75.01,10],[91.68,10],[8.33, 30],[25,30],[41.67,30],[58.34,30],[75.01,30],[91.68,30],[8.33, 50],[25,50],[41.67,50],[58.34,50],[75.01,50],[91.68,50],[8.33, 70],[25,70],[41.67,70],[58.34,70],[75.01,70],[91.68,70], [8.33, 90],[25,90],[41.67,90],[58.34,90],[75.01,90],[91.68,90]];
+
+		let html='<div style="position: relative; width: 600px; height: 400px;">';
+	
+		(target != '') ? (size = size - 1) : size;
+
+		let areas = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29];
+
+		for(let i=0; i<size; i++) {
+			let distractor_element = distractors[Math.floor(Math.random() * distractors.length)];
+			let choose_area = areas[Math.floor(Math.random() * areas.length)];
+			let positive = Math.floor(Math.random() * 9);
+			let shuffleTop = positive * (Math.floor(Math.random() * 2) == 1 ? 1: -1);
+			let shuffleLeft = positive * (Math.floor(Math.random() * 2) == 1 ? 1: -1);
+
+			html+='<div style="position: absolute; top:'+((area[choose_area][0])+shuffleTop)+'%; left:'+((area[choose_area][1])+shuffleLeft)+'%;">'+distractor_element+'</div>';
+
+			areas.splice(areas.indexOf(choose_area), 1);
+		}
+		if(areas.length != 0) {
+			let target_position = areas[Math.floor(Math.random() * areas.length)];
+			html+='<div style="position: absolute; top:'+area[target_position][0]+'%; left:'+area[target_position][1]+'%;">'+target+'</div>';
+		}
+
+		html+='</div>';
+		return html;
+	}
+
+	var blank_trial = {
+		type: 'html-keyboard-response',
+		stimulus: '',
+		response_ends_trial: false,
+		trial_duration: 2000,
+	};
+
+	var fixation = {
+		type: 'image-keyboard-response',
+		stimulus: 'fixation.gif',
+		response_ends_trial: false,
+		trial_duration: 1000,
+	};
+
+
+	var block_1 = {
+		timeline: [
+		blank_trial,
+		fixation,
+		{
+			type: 'html-keyboard-response',
+			stimulus: jsPsych.timelineVariable('stimulus'),
+			choices: [70, 74], //70 if target is present, 74 if target is not present 
+			data: jsPsych.timelineVariable('data'),
+			on_finish: function(data){
+        		data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+      		},
+		}],
+		timeline_variables: [
+			{stimulus: function(){return generate_position('<span style="color:#29E726">T</span>','A', 
+				display[Math.floor(Math.random() * display.length)])},
+			data: {correct_response: 'f'}},
+			{stimulus: function(){return generate_position('','A', display[Math.floor(Math.random() * display.length)])},
+			data: {correct_response: 'j'}},
+		],
+		repetitions: 64,
+		randomize_order: true,
+	};
+
+	var block_2 = {
+		timeline: [
+		blank_trial,
+		fixation,
+		{
+			type: 'html-keyboard-response',
+			stimulus: jsPsych.timelineVariable('stimulus'),
+			choices: [70, 74],
+			data: jsPsych.timelineVariable('data'),
+			on_finish: function(data){
+        		data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+      		},
+		}],
+		timeline_variables: [
+			{stimulus: function(){return generate_position('','B', 
+				display[Math.floor(Math.random() * display.length)])},
+			data: {correct_response: 'j'}},
+			{stimulus: function(){return generate_position(disconj[Math.floor(Math.random() * disconj.length)],'B', 
+				display[Math.floor(Math.random() * display.length)])},
+			data: {correct_response: 'f'}},
+		],
+		repetitions: 64,
+		randomize_order: true
+	};
+
+	var block_3 = {
+		timeline: [
+		blank_trial,
+		fixation,
+		{
+			type: 'html-keyboard-response',
+			stimulus: jsPsych.timelineVariable('stimulus'),
+			choices: [70, 74],
+			data: jsPsych.timelineVariable('data'),
+			on_finish: function(data){
+        		data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+      		},
+		}],
+		timeline_variables: [
+			{stimulus: function(){return generate_position('','B', 
+				display[Math.floor(Math.random() * display.length)])},
+			data: {correct_response: 'j'}},
+			{stimulus: function(){return generate_position(disconj[Math.floor(Math.random() * disconj.length)],'B', 
+				display[Math.floor(Math.random() * display.length)])},
+			data: {correct_response: 'f'}},
+		],
+		repetitions: 64,
+		randomize_order: true
+	};
+
+	var block_4 = {
+		timeline: [
+		blank_trial,
+		fixation,
+		{
+			type: 'html-keyboard-response',
+			stimulus: jsPsych.timelineVariable('stimulus'),
+			choices: [70, 74],
+			data: jsPsych.timelineVariable('data'),
+			on_finish: function(data){
+        		data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+      		},
+		}],
+		timeline_variables: [
+			{stimulus: function(){return generate_position('<span style="color:#29E726">T</span>','A', 
+				display[Math.floor(Math.random() * display.length)])},
+			data: {correct_response: 'f'}},
+			{stimulus: function(){return generate_position('','A', display[Math.floor(Math.random() * display.length)])},
+			data: {correct_response: 'j'}},
+		],
+		repetitions: 64,
+		randomize_order: true,
+	};
+
+	var block_5 = {
+		timeline: [
+		blank_trial,
+		fixation,
+		{
+			type: 'html-keyboard-response',
+			stimulus: jsPsych.timelineVariable('stimulus'),
+			choices: [70, 74],
+			data: jsPsych.timelineVariable('data'),
+			on_finish: function(data){
+        		data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+      		},
+		}],
+		timeline_variables: [
+			{stimulus: function(){return generate_position('<span style="color:#29E726">T</span>','A', 
+				display[Math.floor(Math.random() * display.length)])},
+			data: {correct_response: 'f'}},
+			{stimulus: function(){return generate_position('','A', display[Math.floor(Math.random() * display.length)])},
+			data: {correct_response: 'j'}},
+		],
+		repetitions: 64,
+		randomize_order: true,
+	};
+
+	var block_6 = {
+		timeline: [
+		blank_trial,
+		fixation,
+		{
+			type: 'html-keyboard-response',
+			stimulus: jsPsych.timelineVariable('stimulus'),
+			choices: [70, 74],
+			data: jsPsych.timelineVariable('data'),
+			on_finish: function(data){
+        		data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+      		},
+		}],
+		timeline_variables: [
+			{stimulus: function(){return generate_position('','B', 
+				display[Math.floor(Math.random() * display.length)])},
+			data: {correct_response: 'j'}},
+			{stimulus: function(){return generate_position(disconj[Math.floor(Math.random() * disconj.length)],'B', 
+				display[Math.floor(Math.random() * display.length)])},
+			data: {correct_response: 'f'}},
+		],
+		repetitions: 64,
+		randomize_order: true
+	};
+
+	jsPsych.init({
+		timeline: [block_1, block_2, block_3, block_4, block_5, block_6],
+		on_finish: function() {
+        jsPsych.data.displayData();
+      }
+	});
+
+	</script>
+</html>
