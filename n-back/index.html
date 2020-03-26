@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="jspsych-6.1.0/jspsych.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <link rel="stylesheet" href="jspsych-6.1.0/css/jspsych.css">
+  </head>
+  <body>
+  </body>
+  <script>
+    var timeline = [];
+
+    var n_back_set = ['Z', 'X', 'C', 'V', 'B', 'N'];
+    var sequence = [];
+
+    var n_back_trial = {
+      type: 'html-keyboard-response',
+      stimulus: function() {
+        if(sequence.length < 2){
+          var letter = jsPsych.randomization.sampleWithoutReplacement(n_back_set, 1)[0]
+        } else {
+          if(jsPsych.timelineVariable('match', true) == true){
+            var letter = sequence[sequence.length - 2];
+          } else {
+            var possible_letters = jsPsych.randomization.sampleWithoutReplacement(n_back_set, 2);
+            if(possible_letters[0] != sequence[sequence.length - 2]){
+              var letter = possible_letters[0];
+            } else {
+              var letter = possible_letters[1];
+            }
+          }
+        }
+        sequence.push(letter);
+        return '<span style="font-size: 96px;">'+letter+'</span>'
+      },
+      choices: ['M'],
+      trial_duration: 1500,
+      response_ends_trial: false,
+      post_trial_gap: 500,
+      data: {
+        match: jsPsych.timelineVariable('match')
+      },
+      on_finish: function(data){
+        if(data.match == true){
+          data.correct = (data.key_press != null)
+        }
+        if(data.match == false){
+          data.correct = (data.key_press === null)
+        }
+      }
+    }
+
+    var n_back_trials = [
+      {match: true},
+      {match: false}
+    ]
+
+    var n_back_sequence = {
+      timeline: [n_back_trial],
+      timeline_variables: n_back_trials,
+      sample: {
+        type: 'with-replacement',
+        size: 12,
+        weights: [1, 2]
+      }
+    }
+
+    timeline.push(n_back_sequence);
+
+    jsPsych.init({
+      timeline: timeline
+    })
+  </script>
+</html>
