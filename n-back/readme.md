@@ -9,3 +9,7 @@ This tutorial covers creating an n-back task using timeline variables and dynami
 ## Experiment link
 
 [Try the completed experiment](https://jspsych.github.io/tutorials/n-back)
+
+## Full experiment
+
+The video tutorial walks through setting up the n-back task but doesn't go through setting up instructions or showing the participant their data at the end. The `full-experiment.html` code adds both of these features. You can try the [full experiment here](https://jspsych.github.io/tutorials/n-back/full-experiment.html).
