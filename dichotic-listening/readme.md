@@ -9,7 +9,7 @@ This tutorial covers creating a dichotic listening task. It's aimed at new users
 
 ## Video Link
 
-[Watch the tutorial on YouTube](https://youtu.be/fYKaKTvybCI)
+[Watch the tutorial on YouTube](https://youtu.be/FH999P3QFx0)
 
 ## Experiment link
 
