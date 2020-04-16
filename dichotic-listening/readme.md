@@ -13,4 +13,4 @@ This tutorial covers creating a dichotic listening task. It's aimed at new users
 
 ## Experiment link
 
-[Try the completed experiment](https://jspsych.github.io/tutorials/dichotic-listening)
+[Try the completed experiment](https://jspsych.github.io/tutorials/dichotic-listening/)

@@ -8,7 +8,7 @@ This tutorial covers creating an n-back task using timeline variables and dynami
 
 ## Experiment link
 
-[Try the completed experiment](https://jspsych.github.io/tutorials/n-back)
+[Try the completed experiment](https://jspsych.github.io/tutorials/n-back/)
 
 ## Full experiment
 
