@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="jspsych-6.1.0/jspsych.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-audio-keyboard-response.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-survey-text.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <link rel="stylesheet" href="jspsych-6.1.0/css/jspsych.css">
+  </head>
+  <body></body>
+  <script>
+    var timeline = [];
+
+    var welcome_screen = {
+      type: 'html-button-response',
+      stimulus: '<p>Please put headphones on and make sure that the correct side is in each ear.</p>'+
+        '<p>Your task is to listen to the audio and write down any words that you hear.</p>',
+      choices: ['Continue']
+    }
+    timeline.push(welcome_screen);
+
+    var timeline_variables_block_1 = [
+      { sound: "mp3/1_Cat_R_Fall_L.mp3", left: ["fall"], right: ["cat"] },
+      { sound: "mp3/2_Dog_R_Win_L.mp3", left: ["win"], right: ["dog"] },
+      { sound: "mp3/3_Bed_R_More_L.mp3", left: ["more", "moor"], right: ["bed"] },
+      { sound: "mp3/4_Puff_R_Neck_L.mp3", left: ["neck"], right: ["puff"] },
+      { sound: "mp3/5_Some_R_Gap_L.mp3", left: ["gap"], right: ["some", "sum"] },
+      { sound: "mp3/6_Bug_R_Jet_L.mp3", left: ["jet"], right: ["bug"] },
+      { sound: "mp3/7_Tub_R_Hen_L.mp3", left: ["hen"], right: ["tub"] },
+      { sound: "mp3/8_Pig_R_Came_L.mp3", left: ["came"], right: ["pig"] },
+      { sound: "mp3/9_Sun_R_Jam_L.mp3", left: ["jam"], right: ["sun", "son"] },
+      { sound: "mp3/10_Kid_R_Let_L.mp3", left: ["let"], right: ["kid"] },
+      { sound: "mp3/11_Fan_R_Mop_L.mp3", left: ["mop"], right: ["fan"] },
+      { sound: "mp3/12_Ten_R_Sad_L.mp3", left: ["sad"], right: ["ten"] },
+      { sound: "mp3/13_Bus_R_Pail_L.mp3", left: ["pail", "pale"], right: ["bus"] },
+      { sound: "mp3/14_Give_R_Tap_L.mp3", left: ["tap"], right: ["give"] },
+      { sound: "mp3/15_Lock_R_Wet_L.mp3", left: ["wet"], right: ["lock"] },
+      { sound: "mp3/16_Roll_R_Hug_L.mp3", left: ["hug"], right: ["roll", "role"] }
+    ];
+
+    var timeline_variables_block_2 = [
+      { sound: "mp3/17_Fall_R_Cat_L.mp3", right: ["cat"], left: ["fall"] },
+      { sound: "mp3/18_Win_R_Dog_L.mp3", right: ["dog"], left: ["win"] },
+      { sound: "mp3/19_More_R_Bed_L.mp3", right: ["bed"], left: ["more", "moor"] },
+      { sound: "mp3/20_Neck_R_Puff_L.mp3", right: ["puff"], left: ["neck"] },
+      { sound: "mp3/21_Gap_R_Some_L.mp3", right: ["some", "sum"], left: ["gap"] },
+      { sound: "mp3/22_Jet_R_Bug_L.mp3", right: ["bug"], left: ["jet"] },
+      { sound: "mp3/23_Hen_R_Tub_L.mp3", right: ["tub"], left: ["hen"] },
+      { sound: "mp3/24_Came_R_Pig_L.mp3", right: ["pig"], left: ["came"] },
+      { sound: "mp3/25_Jam_R_Sun_L.mp3", right: ["sun", "son"], left: ["jam"] },
+      { sound: "mp3/26_Let_R_Kid_L.mp3", right: ["kid"], left: ["let"] },
+      { sound: "mp3/27_Mop_R_Fan_L.mp3", right: ["fan"], left: ["mop"] },
+      { sound: "mp3/28_Sad_R_Ten_L.mp3", right: ["ten"], left: ["sad"] },
+      { sound: "mp3/29_Pail_R_Bus_L.mp3", right: ["bus"], left: ["pail", "pale"] },
+      { sound: "mp3/30_Tap_R_Give_L.mp3", right: ["give"], left: ["tap"] },
+      { sound: "mp3/31_Wet_R_Lock_L.mp3", right: ["lock"], left: ["wet"] },
+      { sound: "mp3/32_Hug_R_Roll_L.mp3", right: ["roll", "role"], left: ["hug"] }
+    ];
+
+    var audio_trial = {
+      type: 'audio-keyboard-response',
+      stimulus: jsPsych.timelineVariable('sound'),
+      choices: jsPsych.NO_KEYS,
+      trial_ends_after_audio: true
+    }
+   
+    var response_trial = {
+      type: 'survey-text',
+      questions: [
+        {prompt: 'Please write down any words that you heard. If you heard more than one word please separate each word with a comma.'}
+      ],
+      data: {
+        sound: jsPsych.timelineVariable('sound'),
+        phase: 'response'
+      },
+      on_finish: function(data){
+        var subject_response = JSON.parse(data.responses).Q0;
+        var lower_case_response = subject_response.toLowerCase();
+        var subject_response_words = lower_case_response.split(",");
+        var right_word = false;
+        var left_word = false;
+        for(var i=0; i<subject_response_words.length; i++){
+          var word = subject_response_words[i].trim();
+          if(jsPsych.timelineVariable('right', true).includes(word)){
+            right_word = true;
+          }
+          if(jsPsych.timelineVariable('left', true).includes(word)){
+            left_word = true;
+          }
+        }
+        data.left_word_correct = left_word;
+        data.right_word_correct = right_word;
+      }
+    }
+
+    var blocks = [timeline_variables_block_1, timeline_variables_block_2];
+    blocks = jsPsych.randomization.shuffle(blocks);
+  
+    var test_procedure_first_half = {
+      timeline: [audio_trial, response_trial],
+      timeline_variables: blocks[0],
+      randomize_order: true
+    }
+    timeline.push(test_procedure_first_half);
+
+    var test_procedure_second_half = {
+      timeline: [audio_trial, response_trial],
+      timeline_variables: blocks[1],
+      randomize_order: true
+    }
+    timeline.push(test_procedure_second_half);
+
+    var end_screen = {
+      type: 'html-keyboard-response',
+      stimulus: '<p>You are done!</p>',
+      choices: jsPsych.NO_KEYS
+    }
+    timeline.push(end_screen);
+
+    jsPsych.init({
+      timeline: timeline,
+      use_webaudio: false,
+      preload_audio: [
+        "mp3/1_Cat_R_Fall_L.mp3",
+        "mp3/2_Dog_R_Win_L.mp3", 
+        "mp3/3_Bed_R_More_L.mp3", 
+        "mp3/4_Puff_R_Neck_L.mp3", 
+        "mp3/5_Some_R_Gap_L.mp3", 
+        "mp3/6_Bug_R_Jet_L.mp3", 
+        "mp3/7_Tub_R_Hen_L.mp3",
+        "mp3/8_Pig_R_Came_L.mp3", 
+        "mp3/9_Sun_R_Jam_L.mp3", 
+        "mp3/10_Kid_R_Let_L.mp3", 
+        "mp3/11_Fan_R_Mop_L.mp3", 
+        "mp3/12_Ten_R_Sad_L.mp3", 
+        "mp3/13_Bus_R_Pail_L.mp3", 
+        "mp3/14_Give_R_Tap_L.mp3", 
+        "mp3/15_Lock_R_Wet_L.mp3", 
+        "mp3/16_Roll_R_Hug_L.mp3", 
+        "mp3/17_Fall_R_Cat_L.mp3", 
+        "mp3/18_Win_R_Dog_L.mp3", 
+        "mp3/19_More_R_Bed_L.mp3", 
+        "mp3/20_Neck_R_Puff_L.mp3", 
+        "mp3/21_Gap_R_Some_L.mp3", 
+        "mp3/22_Jet_R_Bug_L.mp3", 
+        "mp3/23_Hen_R_Tub_L.mp3", 
+        "mp3/24_Came_R_Pig_L.mp3", 
+        "mp3/25_Jam_R_Sun_L.mp3", 
+        "mp3/26_Let_R_Kid_L.mp3", 
+        "mp3/27_Mop_R_Fan_L.mp3", 
+        "mp3/28_Sad_R_Ten_L.mp3", 
+        "mp3/29_Pail_R_Bus_L.mp3", 
+        "mp3/30_Tap_R_Give_L.mp3", 
+        "mp3/31_Wet_R_Lock_L.mp3", 
+        "mp3/32_Hug_R_Roll_L.mp3"
+      ]
+    });
+  </script>
+</html>
