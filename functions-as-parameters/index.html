@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="jspsych/jspsych.js"></script>
+    <script src="jspsych/plugins/jspsych-html-button-response.js"></script>
+    <link rel="stylesheet" href="jspsych/css/jspsych.css">
+  </head>
+  <body>
+  </body>
+  <script>
+    // create an empty timeline array
+    var timeline = [];
+
+    // create a button-based lexical decision trial
+    // with randomly generated three-letter words
+    var trial = {
+      type: 'html-button-response',
+      stimulus: generateRandomStimulus(),
+      choices: ['word', 'non-word'],
+      post_trial_gap: 500
+    }
+
+    // add three copies of the trial to the timeline
+    timeline.push(trial);
+    timeline.push(trial);
+    timeline.push(trial);
+
+    // for pedagogical purposes, log the initialization of the experiment to the console
+    console.log('jsPsych.init() about to be called. experiment will begin.')
+
+    // run the experiment
+    jsPsych.init({
+      timeline: timeline
+    });
+
+    // define the function that generates the random stimulus
+    function generateRandomStimulus(){
+      
+      // create an array of all letters in the alphabet
+      var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+      // use built in randomization library to pick three letters at random
+      var letters = jsPsych.randomization.sampleWithReplacement(alphabet, 3);
+      // convert the array of three letters to a string
+      var word = letters.join('');
+
+      // for pedagogical purposes, log the word to the console
+      console.log('generateRandomStimulus() called. generated word: '+word)
+  
+      return word;
+    }
+  </script>
+</html>
