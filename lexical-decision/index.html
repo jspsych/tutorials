@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="jspsych-6.1.0/jspsych.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="stimuli.js"></script>
+    <link rel="stylesheet" href="jspsych-6.1.0/css/jspsych.css">
+  </head>
+  <body></body>
+  <script>
+    /* experiment parameters */
+    var FIXATION_DURATION = 500;
+    var PRIME_DURATION = 150;
+    var PRIME_TARGET_GAP = 50;
+
+    /* create instructions */
+
+    var instructions = {
+      type: 'html-keyboard-response',
+      stimulus: `<p>In the following experiment you will be shown pairs of words and asked to determine
+        whether the second word in each pair is a real word (e.g., "group" or "red") or a
+        non-word (e.g., "gork" or "polie").</p>
+        <p>First, a fixation cross will appear. The the first word in each pair will appear on the 
+        screen for a short time only. The second word will reamin on the screen until you
+        have decided whether it is a real word or a non-word. It is imperative that you make
+        you decisions as quickly as possible while still preserving the accuracy of you answers.</p>
+        <p>To indicate that a word is a real word, press the "W" key on the keyboard.</p>
+        <p>To indicate that a word is a non-word, press the "N" key on the keyboard.</p>
+        <p>Press the space bar to continue.</p>`,
+      choices: [32]
+    }
+
+    var pre_test_instructions = {
+      type: 'html-keyboard-response',
+      stimulus: `<p>First, let's go through a quick pre-test to help familiarize you hwith the format of the
+        experiment. This pre-test will consist of three pairs of words similar to those you will
+        be seeing during the actual test.</p>
+        <p>Remember, press "W" if the second word of a pair is a real word, and "N" if the
+        second word of a pair is a non-word.</p>
+        <p>Press the spacebar to begin the pre-test.</p>`,
+      choices: [32]
+    }
+
+    var main_task_instructions = {
+      type: 'html-keyboard-response',
+      stimulus: `<p>The pre-test has ended. Now you will complete the actual test, which is longer. It
+        should take about fifteen minute to complete.</p>
+        <p>Remember to answer as quickly as you can without diminishing your accuracy.</p>
+        <p>Press the space bar to begin the test.</p>
+        <p>Good luck!</p>`,
+      choices: [32]
+    }
+
+    /* create the task */
+
+    var fixation = {
+      type: 'html-keyboard-response',
+      stimulus: '<p style="font-size: 48px; font-family: monospace;">+</p>',
+      choices: jsPsych.NO_KEYS,
+      trial_duration: FIXATION_DURATION
+    }
+
+    var prime = {
+      type: 'html-keyboard-response',
+      stimulus: function(){
+        return `<p style="font-size: 48px; font-family: monospace;">${jsPsych.timelineVariable('prime', true).toUpperCase()}</p>`
+      },
+      choices: jsPsych.NO_KEYS,
+      trial_duration: PRIME_DURATION,
+      post_trial_gap: PRIME_TARGET_GAP,
+      data: {
+        task: 'prime'
+      }
+    }
+
+    var target = {
+      type: 'html-keyboard-response',
+      stimulus: function(){
+        return `<p style="font-size: 48px; font-family: monospace;">${jsPsych.timelineVariable('target', true).toUpperCase()}</p>`
+      },
+      choices: ['w','n'],
+      data: {
+        prime: jsPsych.timelineVariable('prime'),
+        target: jsPsych.timelineVariable('target'),
+        target_type: jsPsych.timelineVariable('condition'),
+        task: 'target'
+      },
+      on_finish: function(data){
+        if(data.target_type == 'nonword'){
+          data.correct = jsPsych.pluginAPI.compareKeys(data.key_press, 'n');
+        } else {
+          data.correct = jsPsych.pluginAPI.compareKeys(data.key_press, 'w');
+        }
+      }
+    }
+
+    /* create the practice */
+    var practice = {
+      timeline: [fixation, prime, target],
+      timeline_variables: [
+        {prime: 'stop', target: 'sign', condition: 'associative'},
+        {prime: 'money', target: 'troz', condition: 'nonword'},
+        {prime: 'craft', target: 'zip', condition: 'unrelated'}
+      ],
+      data: {
+        phase: 'practice'
+      },
+      randomize_order: true
+    }
+
+    /* create the test */
+    var test = {
+      timeline: [fixation, prime, target],
+      timeline_variables: test_stimuli,
+      data: {
+        phase: 'test'
+      },
+      randomize_order: true
+    }
+
+    /* create the end screen */
+
+    var end = {
+      type: `html-keyboard-response`,
+      stimulus: `<p>You're done! A .csv file containing your data should be automatically downloading right now.
+        Check your default downloads location to find it. Once you've found it you can close the experiment.</p>`,
+      on_load: function(){
+        jsPsych.data.get().filter({phase: 'test', task: 'target'})
+          .ignore('internal_node_id')
+          .ignore('time_elapsed')
+          .ignore('trial_type')
+          .ignore('stimulus')
+          .ignore('task')
+          .ignore('phase')
+          .ignore('trial_index')
+          .localSave('csv', 'lexical_decision.csv');
+      }
+    }
+
+    /* create the timeline */
+    var timeline = [];
+
+    timeline.push(instructions);
+    timeline.push(pre_test_instructions);
+    timeline.push(practice);
+    timeline.push(main_task_instructions);
+    timeline.push(test);
+    timeline.push(end);
+
+    jsPsych.init({
+      timeline: timeline,
+      experiment_width: 850
+    });
+  </script>
+</html>
